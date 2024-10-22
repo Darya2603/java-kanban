@@ -3,25 +3,43 @@ package manager;
 import model.Epic;
 import model.Status;
 import model.Subtask;
+import model.Task;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class TaskManager {
-    public Map<Integer, Subtask> subtasks = new HashMap<>();
-     public Map<Integer, Epic> epics = new HashMap<>();
+    private final Map<Integer, Task> tasks = new HashMap<>();
+    private final Map<Integer, Subtask> subtasks = new HashMap<>();
+    private final Map<Integer, Epic> epics = new HashMap<>();
+    private int idCounter = 0;
 
-    public void addSubtask(Subtask subtask) {
-        subtasks.put(subtask.getId(), subtask);
-        // Обновление статуса Epic
-        Epic epic = epics.get(subtask.getEpicId());
-        if (epic != null) {
-            updateEpicStatus(epic);
-        }
+    // Для добавления задач
+    public int addNewTask(Task task) {
+        task.setId(idCounter++);
+        tasks.put(task.getId(), task);
+        return task.getId();
     }
 
-    public void addEpic(Epic epic) {
+    public int addNewSubtask(Subtask subtask) {
+        subtask.setId(idCounter++);
+        subtasks.put(subtask.getId(), subtask);
+        Epic epic = epics.get(subtask.getEpicId());
+        if (epic != null) {
+            epic.addSubtaskId(subtask.getId());
+            updateEpicStatus(epic);
+        }
+        return subtask.getId();
+    }
+
+    public int addNewEpic(Epic epic) {
+        epic.setId(idCounter++);
         epics.put(epic.getId(), epic);
+        return epic.getId();
+    }
+
+    // Обновление задач
+    public void updateTask(Task task) {
+        tasks.put(task.getId(), task);
     }
 
     public void updateSubtask(Subtask subtask) {
@@ -32,36 +50,72 @@ public class TaskManager {
         }
     }
 
-    public void updateEpicStatus(Epic epic) {
-        boolean hasSubtasks = false;
-        boolean allDone = true;
+    public void updateEpic(Epic epic) {
+        epics.put(epic.getId(), epic);
+    }
 
+    // Получение задач по id
+    public Task getTask(int id) {
+        return tasks.get(id);
+    }
+
+    public Subtask getSubtask(int id) {
+        return subtasks.get(id);
+    }
+
+    public Epic getEpic(int id) {
+        return epics.get(id);
+    }
+
+    // Удаление задач
+    public void deleteTask(int id) {
+        tasks.remove(id);
+    }
+    public void deleteEpic(int id) {
+        epics.remove(id);
+    }
+
+    private void updateEpicStatus(Epic epic) {
+        List<Subtask> epicSubtasks = new ArrayList<>();
         for (int subtaskId : epic.getSubtaskIds()) {
-            Subtask subtask = subtasks.get(subtaskId);
-            if (subtask != null) {
-                hasSubtasks = true;
-                if (subtask.getStatus() != Status.DONE) {
-                    allDone = false;
-                }
-            }
+            epicSubtasks.add(subtasks.get(subtaskId));
         }
 
-        if (!hasSubtasks || allDone) {
+        // Обновление статуса эпика
+        if (epicSubtasks.isEmpty() || epicSubtasks.stream().allMatch(st -> st.getStatus() == Status.NEW)) {
+            epic.setStatus(Status.NEW);
+        } else if (epicSubtasks.stream().allMatch(st -> st.getStatus() == Status.DONE)) {
             epic.setStatus(Status.DONE);
         } else {
             epic.setStatus(Status.IN_PROGRESS);
         }
+        updateEpic(epic);
     }
 
-    public void printSubtasks() {
-        System.out.println("Subtasks: " + subtasks.values());
+    // Получение всех задач
+    public List<Task> getTasks() {
+        return new ArrayList<>(tasks.values());
     }
 
-    public void printEpics() {
-        System.out.println("Epics: " + epics.values());
+    public List<Subtask> getSubtasks() {
+        return new ArrayList<>(subtasks.values());
+    }
+
+    public List<Epic> getEpics() {
+        return new ArrayList<>(epics.values());
+    }
+
+
+    public List<Subtask> getEpicSubtasks(int epicId) {
+        Epic epic = getEpic(epicId);
+        List<Subtask> result = new ArrayList<>();
+        for (int subtaskId : epic.getSubtaskIds()) {
+            result.add(subtasks.get(subtaskId));
+
+        }
+        return result;
     }
 }
-
 
 
 

@@ -1,21 +1,31 @@
 package model;
 
 public class Task {
-    private static int idCounter = 0;
-    protected int id;
-    protected String name;
-    protected String description;
-    protected Status status;
+    private int id;
+    private final String name;
+    private final String description;
+    private Status status;
 
-    public Task(String name, String description) {
-        this.id = ++idCounter;  // Генерация уникального ID
+    public Task(String name, String description, Status status) {
         this.name = name;
         this.description = description;
-        this.status = Status.NEW; // По умолчанию статус NEW
+        this.status = status;
     }
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public Status getStatus() {
@@ -28,9 +38,6 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task{id=" + id + ", name='" + name + "', description='" + description + "', status=" + status + "}";
+        return "Task{id=" + id + ", name='" + name + "', description='" + description + "', status=" + status + '}';
     }
 }
-
-
-
