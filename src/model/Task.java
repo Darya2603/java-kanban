@@ -12,6 +12,7 @@ public class Task {
         this.status = status;
     }
 
+    // Геттеры и сеттеры
     public int getId() {
         return id;
     }

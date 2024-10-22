@@ -5,8 +5,7 @@ import model.Status;
 import model.Subtask;
 import model.Task;
 
-import java.util.*;
-
+import java.util.* ;
 public class TaskManager {
     private final Map<Integer, Task> tasks = new HashMap<>();
     private final Map<Integer, Subtask> subtasks = new HashMap<>();
@@ -71,8 +70,43 @@ public class TaskManager {
     public void deleteTask(int id) {
         tasks.remove(id);
     }
+
+    public void deleteSubtask(int id) {
+        Subtask subtask = subtasks.remove(id);
+        if (subtask != null) {
+            Epic epic = epics.get(subtask.getEpicId());
+            if (epic != null) {
+                epic.removeSubtask(id);
+                updateEpicStatus(epic);
+            }
+        }
+    }
+
     public void deleteEpic(int id) {
-        epics.remove(id);
+        Epic epic = epics.remove(id);
+        if (epic != null) {
+            for (Integer subtaskId : epic.getSubtaskIds()) {
+                subtasks.remove(subtaskId);
+            }
+        }
+    }
+
+    // Удаление всех задач определенного типа
+    public void deleteTasks() {
+        tasks.clear();
+    }
+
+    public void deleteSubtasks() {
+        for (Epic epic : epics.values()) {
+            epic.cleanSubtaskIds();
+            updateEpicStatus(epic);
+        }
+        subtasks.clear();
+    }
+
+    public void deleteEpics() {
+        epics.clear();
+        subtasks.clear();
     }
 
     private void updateEpicStatus(Epic epic) {
@@ -80,7 +114,6 @@ public class TaskManager {
         for (int subtaskId : epic.getSubtaskIds()) {
             epicSubtasks.add(subtasks.get(subtaskId));
         }
-
         // Обновление статуса эпика
         if (epicSubtasks.isEmpty() || epicSubtasks.stream().allMatch(st -> st.getStatus() == Status.NEW)) {
             epic.setStatus(Status.NEW);
@@ -101,17 +134,16 @@ public class TaskManager {
         return new ArrayList<>(subtasks.values());
     }
 
+
     public List<Epic> getEpics() {
         return new ArrayList<>(epics.values());
     }
-
 
     public List<Subtask> getEpicSubtasks(int epicId) {
         Epic epic = getEpic(epicId);
         List<Subtask> result = new ArrayList<>();
         for (int subtaskId : epic.getSubtaskIds()) {
             result.add(subtasks.get(subtaskId));
-
         }
         return result;
     }
