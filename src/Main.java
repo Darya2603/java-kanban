@@ -1,12 +1,15 @@
+import manager.Managers;
 import manager.TaskManager;
 import model.Epic;
-import model.Status;
+import manager.Status;
 import model.Subtask;
 import model.Task;
 
 public class Main {
         public static void main(String[] args) {
-                TaskManager manager = new TaskManager();
+                TaskManager manager = Managers.getInMemoryTaskManager(Managers.getDefaultHistory());
+
+
 
                 // Создание задач
                 Task task1 = new Task("Task #1", "Task1 description", Status.NEW);
@@ -80,5 +83,10 @@ public class Main {
                 for (Subtask subtask : manager.getSubtasks()) {
                         System.out.println(subtask);
                 }
-        }
-}
+
+                 System.out.println("История:");
+                for (Task task : manager.getHistory()) {
+                System.out.println(task);
+                }
+       }
+    }

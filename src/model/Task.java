@@ -1,10 +1,13 @@
 package model;
 
+import manager.Status;
+
 public class Task {
     private int id;
     private final String name;
     private final String description;
     private Status status;
+    private int epicId;
 
     public Task(String name, String description, Status status) {
         this.name = name;
@@ -40,5 +43,13 @@ public class Task {
     @Override
     public String toString() {
         return "Task{id=" + id + ", name='" + name + "', description='" + description + "', status=" + status + '}';
+    }
+
+    public void setEpicId(int epicId) {
+        this.epicId = epicId;
+    }
+
+    public int getEpicId() {
+        return epicId;
     }
 }
