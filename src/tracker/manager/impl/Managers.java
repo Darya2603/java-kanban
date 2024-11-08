@@ -1,5 +1,8 @@
-package manager;
+package tracker.manager.impl;
 
+
+import tracker.manager.HistoryManager;
+import tracker.manager.TaskManager;
 
 public class Managers {
 
@@ -7,15 +10,12 @@ public class Managers {
     }
 
     public static TaskManager getInMemoryTaskManager(HistoryManager historyManager) {
-        return new InMemoryTaskManager(historyManager);
+        return new InMemoryTaskManagerImpl(historyManager);
     }
 
     public static HistoryManager getDefaultHistory() {
-        return new InMemoryHistoryManager();
-    }
+        return new InMemoryHistoryManagerImpl();
 
-    public static Object getDefaultTaskManager() {
-        return null;
     }
 }
 

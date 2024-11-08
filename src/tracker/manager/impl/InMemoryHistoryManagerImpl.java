@@ -1,30 +1,30 @@
-package manager;
+package tracker.manager.impl;
 
-import model.Task;
+import tracker.manager.HistoryManager;
+import tracker.model.Task;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class InMemoryHistoryManager implements HistoryManager {
+public class InMemoryHistoryManagerImpl implements HistoryManager {
 
     private static final int MAX_HISTORY_SIZE = 10;
     private final LinkedList<Task> history = new LinkedList<>();
-
 
     @Override
     public void add(Task task) {
         if (task != null) {
             if (history.size() >= MAX_HISTORY_SIZE) {
                 history.removeFirst();
-                history.add(task);
-            } else {
-                history.add(task);
             }
+            history.add(task);
         }
     }
 
     @Override
     public List<Task> getHistory() {
-        return history;
+        return new ArrayList<>(history);
     }
 }
+

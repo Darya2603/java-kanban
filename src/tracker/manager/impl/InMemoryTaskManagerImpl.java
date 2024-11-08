@@ -1,20 +1,22 @@
-package manager;
+package tracker.manager.impl;
 
-import model.Epic;
-import model.Subtask;
-import model.Task;
+import tracker.manager.HistoryManager;
+import tracker.manager.TaskManager;
+import tracker.model.Epic;
+import tracker.model.Subtask;
+import tracker.model.Task;
+import tracker.status.Status;
 
 import java.util.* ;
-public class InMemoryTaskManager implements TaskManager {
+public class InMemoryTaskManagerImpl implements TaskManager {
     private final Map<Integer, Task> tasks = new HashMap<>();
     private final Map<Integer, Subtask> subtasks = new HashMap<>();
     private final Map<Integer, Epic> epics = new HashMap<>();
     private final HistoryManager historyManager;
     private int idCounter = 0;
 
-    public InMemoryTaskManager(HistoryManager historyManager) {
+    public InMemoryTaskManagerImpl(HistoryManager historyManager) {
         this.historyManager = historyManager;
-        Managers.getDefaultHistory();
     }
 
 

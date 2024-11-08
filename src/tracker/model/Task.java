@@ -1,6 +1,6 @@
-package model;
+package tracker.model;
 
-import manager.Status;
+import tracker.status.Status;
 
 public class Task {
     private int id;

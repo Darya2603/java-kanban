@@ -1,4 +1,4 @@
-package manager;
+package tracker.status;
 
 public enum Status {
     NEW,

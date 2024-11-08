@@ -1,6 +1,6 @@
-package model;
+package tracker.model;
 
-import manager.Status;
+import tracker.status.Status;
 
 import java.util.ArrayList;
 import java.util.List;

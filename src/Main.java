@@ -1,9 +1,9 @@
-import manager.Managers;
-import manager.TaskManager;
-import model.Epic;
-import manager.Status;
-import model.Subtask;
-import model.Task;
+import tracker.manager.impl.Managers;
+import tracker.manager.TaskManager;
+import tracker.model.Epic;
+import tracker.status.Status;
+import tracker.model.Subtask;
+import tracker.model.Task;
 
 public class Main {
         public static void main(String[] args) {
