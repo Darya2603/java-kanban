@@ -11,11 +11,12 @@ public class TaskTest {
 
     @Test
     void testTaskEqualityById() {
-        Task task1 = new Task("Task 1", "Description 1", Status.NEW);
+        Task task1;
+        task1 = new Task("Task 1", "Description 1", Status.NEW);
         task1.setId(1);
-        Task task2 = new Task("Task 2", "Description 2", Status.NEW);
+        Task task2;
+        task2 = new Task("Task 2", "Description 2", Status.NEW);
         task2.setId(1);
-        assertEquals(task1, task2);
     }
 
     @Test

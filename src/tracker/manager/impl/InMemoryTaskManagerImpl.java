@@ -165,12 +165,21 @@ public class InMemoryTaskManagerImpl implements TaskManager {
         return result;
     }
 
+    @Override
+    public void removeTask(int taskId) {
+
+    }
+
+    @Override
+    public void removeSubtask(int subtaskId) {
+
+    }
+
     public void updateEpicStatus(Epic epic) {
         List<Subtask> epicSubtasks = new ArrayList<>();
         for (int subtaskId : epic.getSubtaskIds()) {
             epicSubtasks.add(subtasks.get(subtaskId));
         }
-        // Обновление статуса эпика
         if (epicSubtasks.isEmpty() || epicSubtasks.stream().allMatch(st -> st.getStatus() == Status.NEW)) {
             epic.setStatus(Status.NEW);
         } else if (epicSubtasks.stream().allMatch(st -> st.getStatus() == Status.DONE)) {

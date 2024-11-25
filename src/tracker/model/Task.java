@@ -15,7 +15,7 @@ public class Task {
         this.status = status;
     }
 
-    // Геттеры и сеттеры
+
     public int getId() {
         return id;
     }
@@ -51,5 +51,8 @@ public class Task {
 
     public int getEpicId() {
         return epicId;
+    }
+
+    public void setDescription(String ignoredModifiedDescription) {
     }
 }
