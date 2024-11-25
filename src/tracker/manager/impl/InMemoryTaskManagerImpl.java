@@ -7,6 +7,7 @@ import tracker.model.Subtask;
 import tracker.model.Task;
 import tracker.status.Status;
 import java.util.*;
+
 public class InMemoryTaskManagerImpl implements TaskManager {
     private final Map<Integer, Task> tasks = new HashMap<>();
     private final Map<Integer, Subtask> subtasks = new HashMap<>();
@@ -133,7 +134,6 @@ public class InMemoryTaskManagerImpl implements TaskManager {
         return new ArrayList<>(subtasks.values());
     }
 
-
     @Override
     public List<Epic> getEpics() {
         return new ArrayList<>(epics.values());
@@ -143,6 +143,7 @@ public class InMemoryTaskManagerImpl implements TaskManager {
     public List<Task> getHistory() {
         return historyManager.getHistory();
     }
+
     @Override
     public int addNewTask(Task task) {
         task.setId(idCounter++);
