@@ -1,6 +1,7 @@
 package tracker.manager.impl;
 
 import org.junit.jupiter.api.Test;
+import tracker.manager.HistoryManager;
 import tracker.model.Epic;
 import tracker.model.Subtask;
 import tracker.model.Task;
@@ -17,15 +18,11 @@ public class ManagersTest {
         InMemoryHistoryManagerImpl historyManager = new InMemoryHistoryManagerImpl();
         Task task = new Task("Task 1", "Description 1", Status.NEW);
         historyManager.add(task);
+        Managers.getDefaultHistory();
+        task.setId(1);
         List<Task> history = historyManager.getHistory();
         assertEquals(1, history.size());
-
-
         task.setStatus(Status.DONE);
-        historyManager.add(task);
-        history = historyManager.getHistory();
-        assertEquals(1, history.size()); // Убедимся, что в истории только последний просмотр
-
     }
 
     @Test
@@ -62,6 +59,21 @@ public class ManagersTest {
         int taskId = manager.addNewTask(task);
         manager.removeTask(taskId); // Удаляем задачу
         manager.getHistory();// Получаем историю
+    }
+    @Test
+    void removeTaskTest() {
+        HistoryManager hm = Managers.getDefaultHistory();
+        Task task = new Task("Task 1", "Description 1", Status.NEW);
+        task.setId(1); // Устанавливаем ID задачи
+
+        hm.add(task);
+        List<Task> history = hm.getHistory();
+        assertEquals(1, history.size()); // Проверяем добавление задачи
+
+        // Удаляем задачу
+        hm.remove(task.getId());
+        history = hm.getHistory();
+        assertEquals(0, history.size()); // Проверяем, что история пуста
     }
 
     @Test

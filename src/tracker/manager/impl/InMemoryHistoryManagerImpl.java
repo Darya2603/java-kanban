@@ -37,11 +37,6 @@ public class InMemoryHistoryManagerImpl implements HistoryManager {
     }
 
     @Override
-    public void remove(int id) {
-        HistoryManager.super.remove(id);
-    }
-
-    @Override
     public List<Task> getHistory() {
         List<Task> tasks = new ArrayList<>();
         Node current = head.next;
@@ -52,34 +47,41 @@ public class InMemoryHistoryManagerImpl implements HistoryManager {
         return tasks;
     }
 
+    @Override
+    public void remove(int id) {
+        if (historyMap.containsKey(id)) {
+            Node nodeToRemove = historyMap.get(id);
+            removeNode(nodeToRemove);
+            historyMap.remove(id);
+        }
+    }
+
     private void linkLast(Node newNode) {
         newNode.prev = last;
-        newNode.next = tail;
         last.next = newNode;
+        newNode.next = tail;
         tail.prev = newNode;
         last = newNode;
     }
 
     private void removeNode(Node node) {
-        Node prevNode = node.prev;
-        Node nextNode = node.next;
+        if (node == null) return;
 
-        prevNode.next = nextNode;
-        nextNode.prev = prevNode;
-        if (last == node) {
-            last = prevNode;
-        }
+        node.prev.next = node.next;
+        node.next.prev = node.prev;
+        // Удаление из linked list завершено
     }
 
     private static class Node {
         Task task;
-        Node prev;
         Node next;
+        Node prev;
 
-        Node(Task task) {
+        public Node(Task task) {
             this.task = task;
         }
     }
 }
+
 
 
