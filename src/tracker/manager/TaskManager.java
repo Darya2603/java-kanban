@@ -7,50 +7,44 @@ import tracker.model.Task;
 import java.util.List;
 
 public interface TaskManager {
-    // Для добавления задач
-    int addNewTask(Task task);
 
-    int addNewSubtask(Subtask subtask);
+    int createTask(Task task);
 
-    int addNewEpic(Epic epic);
+    Integer createSubtask(Subtask subtask);
 
-    // Обновление задач
+    int createEpic(Epic epic);
+
+    void removeTasks();
+
+    void removeEpics();
+
+    void removeSubtasks();
+
+    Task getTaskById(int id);
+
+    Subtask getSubtaskById(int id);
+
+    Epic getEpicById(int id);
+
     void updateTask(Task task);
 
     void updateSubtask(Subtask subtask);
 
     void updateEpic(Epic epic);
 
-    // Получение задач по id
-    Task getTask(int id);
+    void removeTaskById(int id);
 
-    Subtask getSubtask(int id);
+    void removeSubtaskById(int id);
 
-    Epic getEpic(int id);
+    void removeEpicById(int id);
 
-    // Удаление задач
-    void deleteTask(int id);
-
-    void deleteSubtask(int id);
-
-    void deleteEpic(int id);
-
-    // Удаление всех задач определенного типа
-    void deleteTasks();
-
-    void deleteSubtasks();
-
-    void deleteEpics();
-
-
-    // Получение всех задач
     List<Task> getTasks();
 
     List<Subtask> getSubtasks();
 
     List<Epic> getEpics();
 
-    List<Task> getHistory();
-
     List<Subtask> getEpicSubtasks(int epicId);
+
+    List<Task> getHistory();
 }
