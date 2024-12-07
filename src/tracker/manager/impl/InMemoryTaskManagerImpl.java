@@ -6,8 +6,8 @@ import tracker.model.Epic;
 import tracker.model.Subtask;
 import tracker.model.Task;
 import tracker.status.Status;
+import java.util.*;
 
-import java.util.* ;
 public class InMemoryTaskManagerImpl implements TaskManager {
     private final Map<Integer, Task> tasks = new HashMap<>();
     private final Map<Integer, Subtask> subtasks = new HashMap<>();
@@ -18,9 +18,6 @@ public class InMemoryTaskManagerImpl implements TaskManager {
     public InMemoryTaskManagerImpl(HistoryManager historyManager) {
         this.historyManager = historyManager;
     }
-
-
-
 
     @Override
     public int addNewSubtask(Subtask subtask) {
@@ -137,7 +134,6 @@ public class InMemoryTaskManagerImpl implements TaskManager {
         return new ArrayList<>(subtasks.values());
     }
 
-
     @Override
     public List<Epic> getEpics() {
         return new ArrayList<>(epics.values());
@@ -147,11 +143,12 @@ public class InMemoryTaskManagerImpl implements TaskManager {
     public List<Task> getHistory() {
         return historyManager.getHistory();
     }
+
     @Override
     public int addNewTask(Task task) {
         task.setId(idCounter++);
-        tasks.put(task.getId(), task);
-        historyManager.add(task); // Add to history
+        tasks.put(task.getId(),task);
+        historyManager.add(task);
         return task.getId();
     }
 
@@ -165,12 +162,20 @@ public class InMemoryTaskManagerImpl implements TaskManager {
         return result;
     }
 
+    @Override
+    public void removeTask(int taskId) {
+
+    }
+
+    @Override
+    public void removeSubtask(int subtaskId) {
+    }
+
     public void updateEpicStatus(Epic epic) {
         List<Subtask> epicSubtasks = new ArrayList<>();
         for (int subtaskId : epic.getSubtaskIds()) {
             epicSubtasks.add(subtasks.get(subtaskId));
         }
-        // Обновление статуса эпика
         if (epicSubtasks.isEmpty() || epicSubtasks.stream().allMatch(st -> st.getStatus() == Status.NEW)) {
             epic.setStatus(Status.NEW);
         } else if (epicSubtasks.stream().allMatch(st -> st.getStatus() == Status.DONE)) {
