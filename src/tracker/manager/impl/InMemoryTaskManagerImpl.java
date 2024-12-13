@@ -140,7 +140,9 @@ public class InMemoryTaskManagerImpl implements TaskManager {
         existingEpic.setDescriptionTask(epic.getDescriptionTask());
         updateEpicStatus(existingEpic.getId());
         epics.put(epic.getId(), existingEpic);
-    }    @Override
+    }
+
+    @Override
     public void removeTaskById(int id) {
         Task task = getTaskById(id);
         if (task != null) {

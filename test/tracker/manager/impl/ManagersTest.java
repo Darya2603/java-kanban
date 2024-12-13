@@ -39,7 +39,6 @@ public class ManagersTest {
         assertEquals("Эпик не может добавлять себя же в качестве подзадачи.", exception.getMessage());
     }
 
-
     // Тестирование создания экземпляров менеджера задач
     @Test
     void testGetTaskManagerReturnsInitializedInstance() {
