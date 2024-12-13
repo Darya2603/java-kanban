@@ -97,7 +97,8 @@ public class Main {
                         System.out.println("Задачи:");
                         for (Task task : manager.getTasks()) {
                                 System.out.println(task);
-                        }            System.out.println("Эпики:");
+                        }
+                        System.out.println("Эпики:");
                         for (Epic epic : manager.getEpics()) {
                                 System.out.println(epic);
                                 for (Task task : manager.getEpicSubtasks(epic.getId())) {
