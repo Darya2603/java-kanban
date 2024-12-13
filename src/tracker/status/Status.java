@@ -1,7 +1,7 @@
 package tracker.status;
 
 public enum Status {
-    NEW ("Статус новой задачи"),
+    NEW("Статус новой задачи"),
     IN_PROGRESS("Над задачей работают."),
     DONE("Задача выполнена.") {
         @Override
