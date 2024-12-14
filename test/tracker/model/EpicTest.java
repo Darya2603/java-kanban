@@ -1,47 +1,61 @@
 package tracker.model;
 
-import org.junit.jupiter.api.Test;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-public class EpicTest {
+import tracker.status.Status;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+class EpicTest {
 
     @Test
-    void testAddSubtaskId() {
+    void testAddSubtask() {
         Epic epic = new Epic("Epic 1", "Description 1");
-        epic.addSubtaskId(1); // Добавляем ID подзадачи
-        epic.addSubtaskId(2); // Добавляем еще один ID подзадачи
+        Subtask subtask1 = new Subtask("Subtask 1", "Description 1", Status.NEW, epic.getId());
+        Subtask subtask2 = new Subtask("Subtask 2", "Description 2", Status.NEW, epic.getId());
 
-        List<Integer> subtaskIds = epic.getSubtaskIds();
-        assertEquals(2, subtaskIds.size(), "Epic should have 2 subtasks added.");
-        assertTrue(subtaskIds.contains(1), "Epic should contain subtask ID 1.");
-        assertTrue(subtaskIds.contains(2), "Epic should contain subtask ID 2.");
+        epic.addSubtask(subtask1);
+        epic.addSubtask(subtask2);
+
+        List<Subtask> subtasks = epic.getSubtasks();
+        assertEquals(2, subtasks.size(), "Epic should have 2 subtasks added.");
+        assertTrue(subtasks.contains(subtask1), "Epic should contain subtask 1.");
+        assertTrue(subtasks.contains(subtask2), "Epic should contain subtask 2.");
     }
 
+    // Тестирование удаления подзадачи из эпика
     @Test
     void testRemoveSubtaskId() {
         Epic epic = new Epic("Epic 1", "Description 1");
-        epic.addSubtaskId(1);
-        epic.addSubtaskId(2);
+        Subtask subtask1 = new Subtask("Subtask 1", "Description 1", Status.NEW, epic.getId());
+        Subtask subtask2 = new Subtask("Subtask 2", "Description 2", Status.NEW, epic.getId());
 
-        epic.removeSubtask(1); // Удаляем ID подзадачи
+        epic.addSubtask(subtask1);
+        epic.addSubtask(subtask2);
 
-        List<Integer> subtaskIds = epic.getSubtaskIds();
-        assertEquals(1, subtaskIds.size(), "Epic should have 1 subtask remaining.");
-        assertFalse(subtaskIds.contains(1), "Epic should not contain subtask ID 1 after removal.");
-        assertTrue(subtaskIds.contains(2), "Epic should still contain subtask ID 2.");
+        epic.removeSubtask(subtask1.getId());
+
+        List<Subtask> subtasks = epic.getSubtasks();
+        assertEquals(1, subtasks.size(), "Epic should have 1 subtask remaining.");
+        assertFalse(subtasks.stream().anyMatch(subtask -> subtask.getId() == subtask1.getId()),
+                "Epic should not contain subtask 1 after removal.");
+        assertTrue(subtasks.stream().anyMatch(subtask -> subtask.getId() == subtask2.getId()),
+                "Epic should still contain subtask 2.");
     }
 
     @Test
-    void testCleanSubtaskIds() {
+    void testCleanSubtasks() {
         Epic epic = new Epic("Epic 1", "Description 1");
-        epic.addSubtaskId(1);
-        epic.addSubtaskId(2);
+        Subtask subtask1 = new Subtask("Subtask 1", "Description 1", Status.NEW, epic.getId());
+        Subtask subtask2 = new Subtask("Subtask 2", "Description 2", Status.NEW, epic.getId());
 
-        epic.cleanSubtaskIds(); // Очищаем список подзадач
+        epic.addSubtask(subtask1);
+        epic.addSubtask(subtask2);
 
-        List<Integer> subtaskIds = epic.getSubtaskIds();
-        assertTrue(subtaskIds.isEmpty(), "Epic should have no subtasks after cleaning.");
+        epic.cleanSubtasks();
+
+        List<Subtask> subtasks = epic.getSubtasks();
+        assertTrue(subtasks.isEmpty(), "Epic should have no subtasks after cleaning.");
     }
 }
