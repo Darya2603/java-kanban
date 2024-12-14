@@ -1,21 +1,19 @@
 package tracker.manager.impl;
 
-import tracker.manager.HistoryManager;
 import tracker.manager.TaskManager;
 import tracker.model.Epic;
 import tracker.model.Subtask;
 import tracker.model.Task;
 import tracker.status.Status;
 import tracker.status.TaskType;
+import tracker.manager.exception.ManagerSaveException;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManagerImpl implements TaskManager {
-    private static File file1;
     private final File file;
-
 
     public FileBackedTaskManager(File file) {
         this.file = file;
@@ -30,10 +28,6 @@ public class FileBackedTaskManager extends InMemoryTaskManagerImpl implements Ta
                 throw new ManagerSaveException("Ошибка при создании файла", e);
             }
         }
-    }
-
-    public static File getFile1() {
-        return file1;
     }
 
     @Override
@@ -146,7 +140,7 @@ public class FileBackedTaskManager extends InMemoryTaskManagerImpl implements Ta
                 + task.getDescriptionTask() + "," + epicId;
     }
 
-    public static FileBackedTaskManager loadFromFile(File file, HistoryManager historyManager) {
+    public static FileBackedTaskManager loadFromFile(File file) {
 
         if (!file.exists()) {
             throw new ManagerSaveException("Файл не существует: " + file.getAbsolutePath(), null);
@@ -174,7 +168,7 @@ public class FileBackedTaskManager extends InMemoryTaskManagerImpl implements Ta
                 }
             }
         } catch (IOException e) {
-            throw new ManagerSaveException("Ошибка при сохранении данных в файл", e);
+            throw new ManagerSaveException("Ошибка при загрузке данных из файла", e);
         }
         return manager;
     }
@@ -207,7 +201,6 @@ public class FileBackedTaskManager extends InMemoryTaskManagerImpl implements Ta
 
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(file);
         System.out.println("Loaded Tasks:");
-        assert loadedManager != null;
         for (Task task : loadedManager.getTasks()) {
             System.out.println(task);
         }
@@ -230,11 +223,6 @@ public class FileBackedTaskManager extends InMemoryTaskManagerImpl implements Ta
         manager.createEpic(epic1);
         manager.createSubtask(subtask1);
         return manager;
-    }
-
-    private static FileBackedTaskManager loadFromFile(File file) {
-        file1 = file;
-        return null;
     }
 }
 

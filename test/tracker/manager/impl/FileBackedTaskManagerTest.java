@@ -1,5 +1,6 @@
 package tracker.manager.impl;
 
+import tracker.manager.exception.ManagerSaveException;
 import tracker.model.Task;
 import tracker.status.Status;
 import org.junit.jupiter.api.*;
@@ -26,7 +27,7 @@ public class FileBackedTaskManagerTest {
     public void testSaveAndLoadEmptyFile() {
         assertEquals(0, tempFile.length());
 
-        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile, new InMemoryHistoryManagerImpl());
+        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
 
         assertTrue(loadedManager.getTasks().isEmpty());
         assertTrue(loadedManager.getEpics().isEmpty());
@@ -45,7 +46,7 @@ public class FileBackedTaskManagerTest {
 
         manager.save();
 
-        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile, new InMemoryHistoryManagerImpl());
+        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
 
         assertEquals(2, loadedManager.getTasks().size());
         assertEquals(task1.getNameTask(), loadedManager.getTasks().get(0).getNameTask());
@@ -64,7 +65,7 @@ public class FileBackedTaskManagerTest {
 
         Files.writeString(tempFile.toPath(), content);
 
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> FileBackedTaskManager.loadFromFile(tempFile, new InMemoryHistoryManagerImpl()));
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> FileBackedTaskManager.loadFromFile(tempFile));
 
         assertEquals("Задача с таким идентификатором уже существует", thrown.getMessage());
 
@@ -81,7 +82,7 @@ public class FileBackedTaskManagerTest {
             assertTrue(nonExistentFile.delete());
         }
 
-        assertThrows(ManagerSaveException.class, () -> FileBackedTaskManager.loadFromFile(nonExistentFile, new InMemoryHistoryManagerImpl()));
+        assertThrows(ManagerSaveException.class, () -> FileBackedTaskManager.loadFromFile(nonExistentFile));
     }
 
     // Тестирование обработки пустых строк
@@ -95,7 +96,7 @@ public class FileBackedTaskManagerTest {
                 """;
         Files.writeString(tempFile.toPath(), content);
 
-        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile, new InMemoryHistoryManagerImpl());
+        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
 
         assertEquals(2, loadedManager.getTasks().size());
         assertEquals("Task 1", loadedManager.getTasks().get(0).getNameTask());
