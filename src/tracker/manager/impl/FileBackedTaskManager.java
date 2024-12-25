@@ -112,7 +112,7 @@ public class FileBackedTaskManager extends InMemoryTaskManagerImpl {
         super.removeEpicById(id);
         save();
     }
-   @Override
+    @Override
     public void removeSubtaskById(int id) {
         super.removeSubtaskById(id);
         save();
@@ -148,7 +148,6 @@ public class FileBackedTaskManager extends InMemoryTaskManagerImpl {
         return task.getId() + "," + task.getTaskType() + "," + task.getNameTask() + "," + task.getStatus() + ","
                 + task.getDescriptionTask() + "," + epicId + "," + durationString + "," + startTimeString;
     }
-
 
     public static FileBackedTaskManager loadFromFile(File file) {
         if (!file.exists()) {
