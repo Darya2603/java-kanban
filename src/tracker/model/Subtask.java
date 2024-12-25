@@ -10,7 +10,7 @@ public class Subtask extends Task {
     private static int idCounter = 0;
     private int epicId;
 
-    public Subtask(String nameTask, String descriptionTask, Status status, int epicId, Duration duration, LocalDateTime startTime ) {
+    public Subtask(String nameTask, String descriptionTask, Status status, int epicId, Duration duration, LocalDateTime startTime) {
         super(nameTask, descriptionTask, status, duration, startTime);
         this.epicId = epicId;
         this.id = ++idCounter;
