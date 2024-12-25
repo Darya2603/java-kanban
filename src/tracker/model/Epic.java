@@ -53,7 +53,7 @@ public class Epic extends Task {
                     .orElse(null);
             endTime = subtasks.stream()
                     .map(Subtask::getEndTime)
-                    .filter(_ -> endTime != null)
+                    .filter(ignored -> endTime != null)
                     .max(LocalDateTime::compareTo)
                     .orElse(null);
         }
