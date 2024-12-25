@@ -3,6 +3,8 @@ package tracker.model;
 import tracker.status.Status;
 import tracker.status.TaskType;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Task {
@@ -13,22 +15,30 @@ public class Task {
     private int epicId;
     protected TaskType taskType;
 
+    // Новые поля
+    private Duration duration; // продолжительность задачи
+    private LocalDateTime startTime; // дата начала задачи
+
     public Task() {
     }
 
-    public Task(String nameTask, String descriptionTask, Status status) {
+    public Task(String nameTask, String descriptionTask, Status status, Duration duration, LocalDateTime startTime) {
         this.nameTask = nameTask;
         this.descriptionTask = descriptionTask;
         this.status = status;
         this.taskType = TaskType.TASK;
+        this.duration = duration;
+        this.startTime = startTime;
     }
 
-    public Task(int id, String nameTask, String descriptionTask, Status status) {
+    public Task(int id, String nameTask, String descriptionTask, Status status, Duration duration, LocalDateTime startTime) {
         this.id = id;
         this.nameTask = nameTask;
         this.descriptionTask = descriptionTask;
         this.status = status;
         this.taskType = TaskType.TASK;
+        this.duration = duration;
+        this.startTime = startTime;
     }
 
     public String getNameTask() {
@@ -75,6 +85,27 @@ public class Task {
         return taskType;
     }
 
+    // Новый метод для получения времени завершения задачи
+    public LocalDateTime getEndTime() {
+        return startTime != null && duration != null ? startTime.plus(duration) : null;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
@@ -90,9 +121,10 @@ public class Task {
 
     @Override
     public String toString() {
-        return nameTask;
+        return nameTask + " (Start: " + startTime + ", Duration: " + duration + ")";
     }
 }
+
 
 
 

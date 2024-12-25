@@ -10,6 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tracker.status.Status;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +31,7 @@ public class ManagersTest {
     void testEpicCannotAddItselfAsSubtask() {
         Epic epic = new Epic("Epic 1", "Epic description");
         epic.setId(1);
-        Subtask subtask = new Subtask("Subtask 1", "Subtask description", Status.NEW, epic.getId());
+        Subtask subtask = new Subtask("Subtask 1", "Subtask description", Status.NEW, epic.getId(), Duration.ofMinutes(20), LocalDateTime.now());
 
         List<Subtask> subtasks = new ArrayList<>();
         subtasks.add(subtask);
@@ -63,7 +65,7 @@ public class ManagersTest {
     @Test
     void testInMemoryTaskManagerAddDifferentTasks() {
         InMemoryTaskManagerImpl manager = new InMemoryTaskManagerImpl(new InMemoryHistoryManagerImpl());
-        Task task = new Task("Task 1", "Description 1", Status.NEW);
+        Task task = new Task("Task 1", "Description 1", Status.NEW, Duration.ofMinutes(30), LocalDateTime.now());
         int taskId = manager.createTask(task);
         assertEquals(task, manager.getTaskById(taskId));
 
@@ -71,7 +73,7 @@ public class ManagersTest {
         int epicId = manager.createEpic(epic);
         assertEquals(epic, manager.getEpicById(epicId));
 
-        Subtask subtask = new Subtask("Subtask 1", "Description 1",Status.NEW, epicId);
+        Subtask subtask = new Subtask("Subtask 1", "Description 1",Status.NEW, epicId, Duration.ofMinutes(20), LocalDateTime.now());
         int subtaskId = manager.createSubtask(subtask);
         assertEquals(subtask, manager.getSubtaskById(subtaskId));
     }
@@ -80,9 +82,9 @@ public class ManagersTest {
     @Test
     void testTaskIdConflict() {
         InMemoryTaskManagerImpl manager = new InMemoryTaskManagerImpl(new InMemoryHistoryManagerImpl());
-        Task task1 = new Task("Task 1", "Description 1", Status.NEW);
+        Task task1 = new Task("Task 1", "Description 1", Status.NEW, Duration.ofMinutes(30), LocalDateTime.now());
         int taskId1 = manager.createTask(task1);
-        Task task2 = new Task("Task 2", "Description 2", Status.NEW);
+        Task task2 = new Task("Task 2", "Description 2", Status.NEW, Duration.ofMinutes(45), LocalDateTime.now());
         int taskId2 = manager.createTask(task2);
         assertNotEquals(taskId1, taskId2);
     }
@@ -91,8 +93,8 @@ public class ManagersTest {
     @Test
     void testDeleteSubtaskUpdatesEpic() {
         Epic epic = new Epic("Epic 1", "Description 1");
-        Subtask subtask1 = new Subtask("Subtask 1", "Description 1", Status.NEW, epic.getId());
-        Subtask subtask2 = new Subtask("Subtask 2", "Description 2", Status.NEW, epic.getId());
+        Subtask subtask1 = new Subtask("Subtask 1", "Description 1", Status.NEW, epic.getId(), Duration.ofMinutes(20), LocalDateTime.now());
+        Subtask subtask2 = new Subtask("Subtask 2", "Description 2", Status.NEW, epic.getId(), Duration.ofMinutes(25), LocalDateTime.now());
 
         epic.addSubtask(subtask1);
         epic.addSubtask(subtask2);
@@ -113,7 +115,7 @@ public class ManagersTest {
         Epic epic = new Epic("Epic 1", "Description for epic");
         manager.createEpic(epic);
         int epicId = epic.getId();
-        Subtask subtask = new Subtask("Subtask 1", "Subtask Description", Status.NEW, epicId);
+        Subtask subtask = new Subtask("Subtask 1", "Subtask Description", Status.NEW, epicId,Duration.ofMinutes(20), LocalDateTime.now());
         int subtaskId = manager.createSubtask(subtask);
         manager.removeSubtaskById(subtaskId);
     }
@@ -122,7 +124,7 @@ public class ManagersTest {
     @Test
     void testUpdateTaskStatus() {
         InMemoryTaskManagerImpl manager = new InMemoryTaskManagerImpl(new InMemoryHistoryManagerImpl());
-        Task task = new Task("Task 1", "Description 1", Status.NEW);
+        Task task = new Task("Task 1", "Description 1", Status.NEW, Duration.ofMinutes(30), LocalDateTime.now());
         int taskId = manager.createTask(task);
 
         task.setStatus(Status.DONE);
@@ -136,7 +138,7 @@ public class ManagersTest {
     @Test
     void testHistoryManagerPreservesPreviousVersion() {
         InMemoryHistoryManagerImpl historyManager = new InMemoryHistoryManagerImpl();
-        Task task = new Task("Task 1", "Description 1", Status.NEW);
+        Task task = new Task("Task 1", "Description 1", Status.NEW, Duration.ofMinutes(30), LocalDateTime.now());
         historyManager.add(task);
         List<Task> history = historyManager.getHistory();
         assertEquals(1, history.size());
@@ -156,14 +158,14 @@ public class ManagersTest {
         int epicId = manager.createEpic(epic);
 
         Subtask subtask = new Subtask("Subtask 1",
-                "Description for Subtask 1", Status.NEW, epicId);
+                "Description for Subtask 1", Status.NEW, epicId, Duration.ofMinutes(20), LocalDateTime.now());
         int subtaskId = manager.createSubtask(subtask);
         epic.addSubtask(subtask);
 
         assertTrue(epic.getSubtasks().contains(subtask), "Эпик должен содержать подзадачу.");
 
         Subtask newSubtask = new Subtask("Subtask 1 Updated",
-                "Description for Subtask 1 Updated", Status.NEW, epicId);
+                "Description for Subtask 1 Updated", Status.NEW, epicId, Duration.ofMinutes(20), LocalDateTime.now());
         int newSubtaskId = manager.createSubtask(newSubtask);
 
         epic.removeSubtask(subtaskId);
@@ -178,7 +180,7 @@ public class ManagersTest {
     @Test
     void testSettersDoNotAffectManagerData() {
         InMemoryTaskManagerImpl manager = new InMemoryTaskManagerImpl(new InMemoryHistoryManagerImpl());
-        Task task = new Task("Task 1", "Description 1", Status.NEW);
+        Task task = new Task("Task 1", "Description 1", Status.NEW, Duration.ofMinutes(30), LocalDateTime.now());
         int taskId = manager.createTask(task);
 
         Task retrievedTask = manager.getTaskById(taskId);

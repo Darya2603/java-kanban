@@ -4,14 +4,16 @@ import tracker.model.Subtask;
 import tracker.model.Task;
 import tracker.manager.impl.Managers;
 import tracker.status.Status;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class Main {
         public static void main(String[] args) {
 
                 TaskManager manager = Managers.getDefault();
 
-                Task task1 = new Task("Task #1", "Task1 description", Status.NEW);
-                Task task2 = new Task("Task #2", "Task2 description", Status.IN_PROGRESS);
+                Task task1 = new Task("Task #1", "Task1 description", Status.NEW, Duration.ofMinutes(30), LocalDateTime.now());
+                Task task2 = new Task("Task #2", "Task2 description", Status.IN_PROGRESS, Duration.ofMinutes(45), LocalDateTime.now());
                 final int taskId1 = manager.createTask(task1);
                 final int taskId2 = manager.createTask(task2);
 
@@ -20,9 +22,9 @@ public class Main {
                 final int epicId1 = manager.createEpic(epic1);
                 final int epicId2 = manager.createEpic(epic2);
 
-                Subtask subtask1 = new Subtask("Subtask #1-1", "Subtask1 description", Status.NEW, epicId1);
-                Subtask subtask2 = new Subtask("Subtask #2-1", "Subtask1 description", Status.NEW, epicId1);
-                Subtask subtask3 = new Subtask("Subtask #3-2", "Subtask1 description", Status.DONE, epicId2);
+                Subtask subtask1 = new Subtask("Subtask #1-1", "Subtask1 description", Status.NEW, epicId1, Duration.ofMinutes(20), LocalDateTime.now());
+                Subtask subtask2 = new Subtask("Subtask #2-1", "Subtask1 description", Status.NEW, epicId1,  Duration.ofMinutes(25), LocalDateTime.now());
+                Subtask subtask3 = new Subtask("Subtask #3-2", "Subtask1 description", Status.DONE, epicId2, Duration.ofMinutes(15), LocalDateTime.now());
                 manager.createSubtask(subtask1);
                 final Integer subtaskId2 = manager.createSubtask(subtask2);
                 final Integer subtaskId3 = manager.createSubtask(subtask3);
@@ -62,7 +64,7 @@ public class Main {
                 epic.setStatus(Status.NEW);
 
                 Subtask newSubtask = new Subtask("Новая подзадача для Эпика #1",
-                        "Описание новой подзадачи", Status.NEW, epicId1);
+                        "Описание новой подзадачи", Status.NEW, epicId1, Duration.ofMinutes(10), LocalDateTime.now());
                 manager.createSubtask(newSubtask);
 
                 manager.updateEpic(epic);

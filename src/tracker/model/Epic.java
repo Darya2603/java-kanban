@@ -3,19 +3,25 @@ package tracker.model;
 import tracker.status.Status;
 import tracker.status.TaskType;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Epic extends Task {
     private List<Subtask> subtasks = new ArrayList<>();
+    private Duration duration; // продолжительность эпика
+    private LocalDateTime startTime; // дата начала эпика
+    private LocalDateTime endTime; // дата завершения эпика
 
     public Epic(String name, String description) {
-        super(name, description, Status.NEW);
+        super(name, description, Status.NEW, null, null);
         this.taskType = TaskType.EPIC;
     }
 
     public Epic(int id, String name, String description) {
-        super(id, name, description, Status.NEW);
+        super(id, name, description, Status.NEW, null, null);
         this.taskType = TaskType.EPIC;
     }
 
@@ -29,6 +35,28 @@ public class Epic extends Task {
 
     public void cleanSubtasks() {
         subtasks.clear();
+    }
+
+    private void updateEpicDetails() {
+        if (subtasks.isEmpty()) {
+            duration = Duration.ZERO;
+            startTime = null;
+            endTime = null;
+        } else {
+            duration = subtasks.stream()
+                    .map(Subtask::getDuration)
+                    .reduce(Duration.ZERO, Duration::plus);
+            startTime = subtasks.stream()
+                    .map(Subtask::getStartTime)
+                    .filter(Objects::nonNull)
+                    .min(LocalDateTime::compareTo)
+                    .orElse(null);
+            endTime = subtasks.stream()
+                    .map(Subtask::getEndTime)
+                    .filter(_ -> endTime != null)
+                    .max(LocalDateTime::compareTo)
+                    .orElse(null);
+        }
     }
 
     @Override
@@ -60,14 +88,41 @@ public class Epic extends Task {
             }
         }
         this.subtasks = subtasks;
+        updateEpicDetails();
+    }
+
+    @Override
+    public Duration getDuration() {
+        return subtasks.stream()
+                .map(Subtask::getDuration)
+                .filter(Objects::nonNull)
+                .reduce(Duration.ZERO, Duration::plus);
+    }
+
+    @Override
+    public LocalDateTime getStartTime() {
+        return subtasks.stream()
+                .map(Subtask::getStartTime)
+                .filter(Objects::nonNull)
+                .min(LocalDateTime::compareTo)
+                .orElse(null);
+    }
+
+    @Override
+    public LocalDateTime getEndTime() {
+        return subtasks.stream()
+                .map(Subtask::getEndTime)
+                .filter(Objects::nonNull)
+                .max(LocalDateTime::compareTo)
+                .orElse(null);
     }
 
     @Override
     public String toString() {
-        return nameTask + ": " +
-                subtasks;
+        return nameTask + ": " + subtasks + " (Start: " + startTime + ", Duration: " + duration + ")";
     }
 }
+
 
 
 

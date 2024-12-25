@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import tracker.status.Status;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 class EpicTest {
@@ -12,8 +14,8 @@ class EpicTest {
     @Test
     void testAddSubtask() {
         Epic epic = new Epic("Epic 1", "Description 1");
-        Subtask subtask1 = new Subtask("Subtask 1", "Description 1", Status.NEW, epic.getId());
-        Subtask subtask2 = new Subtask("Subtask 2", "Description 2", Status.NEW, epic.getId());
+        Subtask subtask1 = new Subtask("Subtask 1", "Description 1", Status.NEW, epic.getId(),Duration.ofMinutes(20), LocalDateTime.now());
+        Subtask subtask2 = new Subtask("Subtask 2", "Description 2", Status.NEW, epic.getId(), Duration.ofMinutes(25), LocalDateTime.now());
 
         epic.addSubtask(subtask1);
         epic.addSubtask(subtask2);
@@ -28,8 +30,8 @@ class EpicTest {
     @Test
     void testRemoveSubtaskId() {
         Epic epic = new Epic("Epic 1", "Description 1");
-        Subtask subtask1 = new Subtask("Subtask 1", "Description 1", Status.NEW, epic.getId());
-        Subtask subtask2 = new Subtask("Subtask 2", "Description 2", Status.NEW, epic.getId());
+        Subtask subtask1 = new Subtask("Subtask 1", "Description 1", Status.NEW, epic.getId(), Duration.ofMinutes(20), LocalDateTime.now());
+        Subtask subtask2 = new Subtask("Subtask 2", "Description 2", Status.NEW, epic.getId(), Duration.ofMinutes(25), LocalDateTime.now());
 
         epic.addSubtask(subtask1);
         epic.addSubtask(subtask2);
@@ -47,8 +49,8 @@ class EpicTest {
     @Test
     void testCleanSubtasks() {
         Epic epic = new Epic("Epic 1", "Description 1");
-        Subtask subtask1 = new Subtask("Subtask 1", "Description 1", Status.NEW, epic.getId());
-        Subtask subtask2 = new Subtask("Subtask 2", "Description 2", Status.NEW, epic.getId());
+        Subtask subtask1 = new Subtask("Subtask 1", "Description 1", Status.NEW, epic.getId(), Duration.ofMinutes(20), LocalDateTime.now());
+        Subtask subtask2 = new Subtask("Subtask 2", "Description 2", Status.NEW, epic.getId(), Duration.ofMinutes(25), LocalDateTime.now());
 
         epic.addSubtask(subtask1);
         epic.addSubtask(subtask2);
