@@ -11,8 +11,6 @@ import java.util.Objects;
 
 public class Epic extends Task {
     private List<Subtask> subtasks = new ArrayList<>();
-    private Duration duration; // продолжительность эпика
-    private LocalDateTime startTime; // дата начала эпика
     private LocalDateTime endTime; // дата завершения эпика
 
     public Epic(String name, String description) {

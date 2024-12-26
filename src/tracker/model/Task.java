@@ -16,8 +16,8 @@ public class Task {
     protected TaskType taskType;
 
     // Новые поля
-    private Duration duration; // продолжительность задачи
-    private LocalDateTime startTime; // дата начала задачи
+    Duration duration; // продолжительность задачи
+    LocalDateTime startTime; // дата начала задачи
 
     public Task() {
     }

@@ -3,8 +3,8 @@ package tracker.manager;
 import tracker.model.Epic;
 import tracker.model.Subtask;
 import tracker.model.Task;
-
 import java.util.List;
+import java.util.Optional;
 
 public interface TaskManager {
 
@@ -20,12 +20,6 @@ public interface TaskManager {
 
     void removeSubtasks();
 
-    Task getTaskById(int id);
-
-    Subtask getSubtaskById(int id);
-
-    Epic getEpicById(int id);
-
     void updateTask(Task task);
 
     void updateSubtask(Subtask subtask);
@@ -38,6 +32,12 @@ public interface TaskManager {
 
     void removeEpicById(int id);
 
+    Optional<Task> getTaskById(int id);
+
+    Optional<Subtask> getSubtaskById(int id);
+
+    Optional<Epic> getEpicById(int id);
+
     List<Task> getTasks();
 
     List<Subtask> getSubtasks();
@@ -47,4 +47,6 @@ public interface TaskManager {
     List<Subtask> getEpicSubtasks(int epicId);
 
     List<Task> getHistory();
+
+    List<Task> getPrioritizedTasks();
 }

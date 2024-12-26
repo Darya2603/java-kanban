@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -174,9 +175,9 @@ public class FileBackedTaskManager extends InMemoryTaskManagerImpl {
                         manager.createEpic(epic);
                     } else if (task instanceof Subtask subtask) {
                         manager.createSubtask(subtask);
-                        Epic epic = manager.getEpicById(subtask.getEpicId());
-                        if (epic != null) {
-                            epic.addSubtask(subtask);
+                        Optional<Epic> epic = manager.getEpicById(subtask.getEpicId());
+                        if (epic.isPresent()) {
+                            epic.get().addSubtask(subtask);
                         } else {
                             throw new IllegalArgumentException("Эпик с ID " + subtask.getEpicId() + " не найден.");
                         }

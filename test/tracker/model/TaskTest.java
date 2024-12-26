@@ -7,8 +7,10 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TaskTest {
 
@@ -23,19 +25,23 @@ public class TaskTest {
         assertEquals(task1, task2, "Задачи должны быть равны по id.");
     }
 
-    // Тестирование неизменности задачи при добавлении
     @Test
     void testTaskImmutabilityOnAdd() {
         InMemoryTaskManagerImpl manager = new InMemoryTaskManagerImpl(new InMemoryHistoryManagerImpl());
         Task task = new Task("Task 1", "Description 1", Status.NEW, Duration.ofMinutes(30), LocalDateTime.now());
         int taskId = manager.createTask(task);
-        Task retrievedTask = manager.getTaskById(taskId);
-        assertEquals(task, retrievedTask);
-        assertEquals(task.getNameTask(), retrievedTask.getNameTask());
-        assertEquals(task.getDescriptionTask(), retrievedTask.getDescriptionTask());
-        assertEquals(task.getStatus(), retrievedTask.getStatus());
+
+        Optional<Task> retrievedTask = manager.getTaskById(taskId);
+
+        // Проверяем, что retrievedTask содержит значение
+        assertTrue(retrievedTask.isPresent(), "Task should be present in the manager");
+
+        // Сравниваем объекты
+        assertEquals(task, retrievedTask.get(), "The retrieved task should be equal to the original task");
+        assertEquals(task.getNameTask(), retrievedTask.get().getNameTask(), "Task names should match");
+        assertEquals(task.getDescriptionTask(), retrievedTask.get().getDescriptionTask(), "Task descriptions should match");
+        assertEquals(task.getStatus(), retrievedTask.get().getStatus(), "Task statuses should match");
     }
 }
-
 
 

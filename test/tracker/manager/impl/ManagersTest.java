@@ -1,6 +1,5 @@
 package tracker.manager.impl;
 
-
 import tracker.manager.HistoryManager;
 import tracker.manager.TaskManager;
 import tracker.model.Epic;
@@ -14,6 +13,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,7 +22,7 @@ public class ManagersTest {
     public HistoryManager historyManager;
 
     @BeforeEach
-    void setAp() {
+    void setUp() {
         historyManager = new InMemoryHistoryManagerImpl();
     }
 
@@ -67,15 +67,21 @@ public class ManagersTest {
         InMemoryTaskManagerImpl manager = new InMemoryTaskManagerImpl(new InMemoryHistoryManagerImpl());
         Task task = new Task("Task 1", "Description 1", Status.NEW, Duration.ofMinutes(30), LocalDateTime.now());
         int taskId = manager.createTask(task);
-        assertEquals(task, manager.getTaskById(taskId));
+        Optional<Task> retrievedTask = manager.getTaskById(taskId);
+        assertTrue(retrievedTask.isPresent());
+        assertEquals(task, retrievedTask.get());
 
         Epic epic = new Epic("Epic 1", "Description 1");
         int epicId = manager.createEpic(epic);
-        assertEquals(epic, manager.getEpicById(epicId));
+        Optional<Epic> retrievedEpic = manager.getEpicById(epicId);
+        assertTrue(retrievedEpic.isPresent());
+        assertEquals(epic, retrievedEpic.get());
 
-        Subtask subtask = new Subtask("Subtask 1", "Description 1",Status.NEW, epicId, Duration.ofMinutes(20), LocalDateTime.now());
+        Subtask subtask = new Subtask("Subtask 1", "Description 1", Status.NEW, epicId, Duration.ofMinutes(20), LocalDateTime.now());
         int subtaskId = manager.createSubtask(subtask);
-        assertEquals(subtask, manager.getSubtaskById(subtaskId));
+        Optional<Subtask> retrievedSubtask = manager.getSubtaskById(subtaskId);
+        assertTrue(retrievedSubtask.isPresent());
+        assertEquals(subtask, retrievedSubtask.get());
     }
 
     // Тестирование конфликта ID задач
@@ -92,20 +98,20 @@ public class ManagersTest {
     // Тестирование удаления подзадачи и обновления связанного эпика
     @Test
     void testDeleteSubtaskUpdatesEpic() {
+        InMemoryTaskManagerImpl manager = new InMemoryTaskManagerImpl(new InMemoryHistoryManagerImpl());
         Epic epic = new Epic("Epic 1", "Description 1");
-        Subtask subtask1 = new Subtask("Subtask 1", "Description 1", Status.NEW, epic.getId(), Duration.ofMinutes(20), LocalDateTime.now());
-        Subtask subtask2 = new Subtask("Subtask 2", "Description 2", Status.NEW, epic.getId(), Duration.ofMinutes(25), LocalDateTime.now());
+        int epicId = manager.createEpic(epic);
+        Subtask subtask1 = new Subtask("Subtask 1", "Description 1", Status.NEW, epicId, Duration.ofMinutes(20), LocalDateTime.now());
+        int subtaskId1 = manager.createSubtask(subtask1);
+        Subtask subtask2 = new Subtask("Subtask 2", "Description 2", Status.NEW, epicId, Duration.ofMinutes(25), LocalDateTime.now());
+        int subtaskId2 = manager.createSubtask(subtask2);
 
-        epic.addSubtask(subtask1);
-        epic.addSubtask(subtask2);
-
-        int subtask1Id = subtask1.getId();
-        epic.removeSubtask(subtask1Id);
-        List<Subtask> remainingSubtasks = epic.getSubtasks();        assertEquals(1, remainingSubtasks.size(), "Epic should have 1 subtask remaining.");
-        assertFalse(remainingSubtasks.stream().anyMatch(subtask -> subtask.getId() == subtask1Id),
-                "Epic should not contain subtask ID " + subtask1Id + " after removal.");
-        assertTrue(remainingSubtasks.stream().anyMatch(subtask -> subtask.getId() == subtask2.getId()),
-                "Epic should still contain subtask ID " + subtask2.getId() + ".");
+        // Удаляем подзадачу и проверяем, что эпик обновился
+        manager.removeSubtaskById(subtaskId1);
+        manager.removeSubtaskById(subtaskId2);
+        Optional<Epic> updatedEpic = manager.getEpicById(epicId);
+        assertTrue(updatedEpic.isPresent(), "Эпик должен существовать после удаления подзадач.");
+        assertEquals(0, updatedEpic.get().getSubtasks().size(), "Проверяем, что подзадач больше нет.");
     }
 
     // Тестирование целостности данных после удаления подзадачи
@@ -115,7 +121,7 @@ public class ManagersTest {
         Epic epic = new Epic("Epic 1", "Description for epic");
         manager.createEpic(epic);
         int epicId = epic.getId();
-        Subtask subtask = new Subtask("Subtask 1", "Subtask Description", Status.NEW, epicId,Duration.ofMinutes(20), LocalDateTime.now());
+        Subtask subtask = new Subtask("Subtask 1", "Subtask Description", Status.NEW, epicId, Duration.ofMinutes(20), LocalDateTime.now());
         int subtaskId = manager.createSubtask(subtask);
         manager.removeSubtaskById(subtaskId);
     }
@@ -127,11 +133,14 @@ public class ManagersTest {
         Task task = new Task("Task 1", "Description 1", Status.NEW, Duration.ofMinutes(30), LocalDateTime.now());
         int taskId = manager.createTask(task);
 
+        // Обновляем статус задачи
         task.setStatus(Status.DONE);
         manager.updateTask(task);
 
-        assertEquals(Status.DONE, manager.getTaskById(taskId).getStatus(),
-                "Статус задачи должен обновиться в менеджере.");
+        // Получаем задачу по ID и проверяем статус
+        Optional<Task> updatedTask = manager.getTaskById(taskId);
+        assertTrue(updatedTask.isPresent(), "Задача должна быть найдена в менеджере.");
+        assertEquals(Status.DONE, updatedTask.get().getStatus(), "Статус задачи должен обновиться в менеджере.");
     }
 
     // Тестирование сохранения истории задач
@@ -183,10 +192,14 @@ public class ManagersTest {
         Task task = new Task("Task 1", "Description 1", Status.NEW, Duration.ofMinutes(30), LocalDateTime.now());
         int taskId = manager.createTask(task);
 
-        Task retrievedTask = manager.getTaskById(taskId);
-        assertNotEquals("Modified Description", retrievedTask.getDescriptionTask(),
+        Optional<Task> retrievedTask = manager.getTaskById(taskId);
+
+        // Проверяем, что retrievedTask содержит значение
+        assertTrue(retrievedTask.isPresent(), "Task should be present in the manager");
+
+        // Проверяем, что описание задачи не изменилось
+        assertNotEquals("Modified Description", retrievedTask.get().getDescriptionTask(),
                 "Manager data should not be affected by direct changes in task properties");
     }
-
 }
 

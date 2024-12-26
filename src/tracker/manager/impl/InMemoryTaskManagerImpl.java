@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
+import java.util.Comparator;
+import java.util.Optional;
 
 public class InMemoryTaskManagerImpl implements TaskManager {
 
@@ -94,30 +97,33 @@ public class InMemoryTaskManagerImpl implements TaskManager {
     }
 
     @Override
-    public Task getTaskById(int id) {
+    public Optional<Task> getTaskById(int id) {
         Task task = tasks.get(id);
         if (task != null) {
             historyManager.add(task);
+            return Optional.of(task);
         }
-        return task;
+        return Optional.empty();
     }
 
     @Override
-    public Subtask getSubtaskById(int id) {
+    public Optional<Subtask> getSubtaskById(int id) {
         Subtask subtask = subtasks.get(id);
         if (subtask != null) {
             historyManager.add(subtask);
+            return Optional.of(subtask);
         }
-        return subtasks.get(id);
+        return Optional.empty();
     }
 
     @Override
-    public Epic getEpicById(int id) {
+    public Optional<Epic> getEpicById(int id) {
         Epic epic = epics.get(id);
         if (epic != null) {
             historyManager.add(epic);
+            return Optional.of(epic);
         }
-        return epics.get(id);
+        return Optional.empty();
     }
 
     @Override
@@ -144,10 +150,11 @@ public class InMemoryTaskManagerImpl implements TaskManager {
 
     @Override
     public void removeTaskById(int id) {
-        Task task = getTaskById(id);
-        if (task != null) {
+        Optional<Task> task = getTaskById(id);
+        if (task.isPresent()) {
+
             historyManager.remove(id);
-            tasks.remove(task.getId());
+            tasks.remove(task.get().getId());
         }
     }
 
@@ -155,10 +162,10 @@ public class InMemoryTaskManagerImpl implements TaskManager {
     public void removeSubtaskById(int id) {
         Subtask subtask = subtasks.get(id);
         if (subtask != null) {
-            Epic epic = getEpicById(subtask.getEpicId());
-            if (epic != null) {
-                epic.removeSubtask(subtask.getId());
-                updateEpicStatus(epic.getId());
+            Optional<Epic> epic = getEpicById(subtask.getEpicId());
+            if (epic.isPresent()) {
+                epic.get().removeSubtask(subtask.getId());
+                updateEpicStatus(epic.get().getId());
             }
             subtasks.remove(id);
         }
@@ -209,9 +216,18 @@ public class InMemoryTaskManagerImpl implements TaskManager {
         return historyManager.getHistory();
     }
 
+    @Override
+    public List<Task> getPrioritizedTasks() {
+        // Используем TreeSet для хранения задач по времени начала
+        TreeSet<Task> prioritizedTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime));
+        prioritizedTasks.addAll(tasks.values());
+        prioritizedTasks.addAll(subtasks.values());
+        return new ArrayList<>(prioritizedTasks);
+    }
+
     private void updateEpicStatus(int epicId) {
-        Epic epic = getEpicById(epicId);
-        if (epic != null) {
+        Optional<Epic> epic = getEpicById(epicId);
+        if (epic.isPresent()) {
             List<Subtask> subtasks = getEpicSubtasks(epicId);
             boolean allDone = true;
             boolean anyInProgress = false;
@@ -226,11 +242,11 @@ public class InMemoryTaskManagerImpl implements TaskManager {
                 }
             }
             if (allDone) {
-                epic.setStatus(Status.DONE);
+                epic.get().setStatus(Status.DONE);
             } else if (anyInProgress) {
-                epic.setStatus(Status.IN_PROGRESS);
+                epic.get().setStatus(Status.IN_PROGRESS);
             } else {
-                epic.setStatus(Status.NEW);
+                epic.get().setStatus(Status.NEW);
             }
         }
     }
