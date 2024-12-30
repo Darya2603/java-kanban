@@ -167,7 +167,7 @@ public class ManagersTest {
         historyManager.add(task);
         history = historyManager.getHistory();
         assertEquals(1, history.size());
-        assertEquals(Status.DONE, history.get(0).getStatus());
+        assertEquals(Status.DONE, history.getFirst().getStatus());
     }
 
     // Тестирование изменения ID эпика подзадачи

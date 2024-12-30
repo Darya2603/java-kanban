@@ -79,7 +79,7 @@ public class InMemoryTaskManagerImpl implements TaskManager {
                 .filter(existingTask -> isOverlapping(newTask, existingTask))
                 .findFirst()
                 .ifPresentOrElse(
-                        overlappedTask -> {
+                        _ -> {
                             if (newTask instanceof Subtask) {
                                 throw new IllegalArgumentException("Подзадача пересекается с существующей подзадачей.");
                             } else {

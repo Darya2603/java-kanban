@@ -28,7 +28,7 @@ public class FileBackedTaskManagerTest {
     // Тестирование сохранения и загрузки пустого файла
     @Test
     public void testSaveAndLoadEmptyFile() {
-        assertTrue(tempFile.length() == 0);
+        assertEquals(0, tempFile.length());
 
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile, new InMemoryHistoryManagerImpl());
 

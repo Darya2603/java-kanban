@@ -109,7 +109,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
                 Duration.ofHours(1), LocalDateTime.now());
         int taskId = manager.createTask(task);
         assertEquals(1, manager.getPrioritizedTasks().size());
-        assertEquals(task, manager.getPrioritizedTasks().get(0));
+        assertEquals(task, manager.getPrioritizedTasks().getFirst());
         assertEquals(taskId, task.getId());
     }
 
@@ -151,7 +151,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         manager.updateTask(updatedTask);
 
         assertEquals(1, manager.getPrioritizedTasks().size());
-        assertEquals(updatedTask, manager.getPrioritizedTasks().get(0));
+        assertEquals(updatedTask, manager.getPrioritizedTasks().getFirst());
     }
 
     @Test
@@ -165,7 +165,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         int subtaskId = manager.createSubtask(subtask);
 
         assertEquals(1, manager.getEpicSubtasks(epicId).size());
-        assertEquals(subtask, manager.getEpicSubtasks(epicId).get(0));
+        assertEquals(subtask, manager.getEpicSubtasks(epicId).getFirst());
         assertEquals(subtaskId, subtask.getId());
     }
 
@@ -219,6 +219,6 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         manager.updateSubtask(updatedSubtask);
 
         assertEquals(1, manager.getEpicSubtasks(epicId).size());
-        assertEquals(updatedSubtask, manager.getEpicSubtasks(epicId).get(0));
+        assertEquals(updatedSubtask, manager.getEpicSubtasks(epicId).getFirst());
     }
 }

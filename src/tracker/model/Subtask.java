@@ -24,7 +24,7 @@ public class Subtask extends Task {
     }
 
     public int getId() {
-        return id;
+        return super.getId();
     }
 
     @Override

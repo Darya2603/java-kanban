@@ -201,7 +201,6 @@ public class FileBackedTaskManager extends InMemoryTaskManagerImpl {
             case TASK -> new Task(id, name, description, status, type, duration, startTime);
             case EPIC -> new Epic(id, name, description, status, duration, startTime);
             case SUBTASK -> new Subtask(id, name, description, status, duration, startTime, epicId);
-            default -> throw new IllegalArgumentException("Неверный тип задачи");
         };
     }
 }
