@@ -1,14 +1,9 @@
 package tracker.status;
 
 public enum Status {
-    NEW("Статус новой задачи"),
-    IN_PROGRESS("Над задачей работают."),
-    DONE("Задача выполнена.") {
-        @Override
-        public String getDescription() {
-            return super.getDescription();
-        }
-    };
+    NEW("Задача создана."),
+    IN_PROGRESS("Над задачей ведётся работа."),
+    DONE("Задача выполнена.");
 
     private final String description;
 

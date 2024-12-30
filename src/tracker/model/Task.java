@@ -12,33 +12,48 @@ public class Task {
     protected String descriptionTask;
     protected int id;
     protected Status status = Status.NEW;
-    private int epicId;
     protected TaskType taskType;
+    private Duration duration;
+    private LocalDateTime startTime;
 
-    // Новые поля
-    Duration duration; // продолжительность задачи
-    LocalDateTime startTime; // дата начала задачи
-
-    public Task() {
-    }
-
-    public Task(String nameTask, String descriptionTask, Status status, Duration duration, LocalDateTime startTime) {
-        this.nameTask = nameTask;
-        this.descriptionTask = descriptionTask;
-        this.status = status;
-        this.taskType = TaskType.TASK;
-        this.duration = duration;
-        this.startTime = startTime;
-    }
-
-    public Task(int id, String nameTask, String descriptionTask, Status status, Duration duration, LocalDateTime startTime) {
+    public Task(int id, String nameTask, String descriptionTask, Status status, TaskType taskType,
+                Duration duration, LocalDateTime startTime) {
         this.id = id;
         this.nameTask = nameTask;
         this.descriptionTask = descriptionTask;
         this.status = status;
-        this.taskType = TaskType.TASK;
+        this.taskType = taskType;
         this.duration = duration;
         this.startTime = startTime;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+
+    public LocalDateTime getEndTime() {
+        return startTime != null && duration != null ? startTime.plus(duration) : null;
+    }
+
+    public boolean overlapsWith(Task other) {
+        if (other == null || this.startTime == null || other.startTime == null) {
+            return false;
+        }
+        return this.startTime.isBefore(other.getEndTime()) && other.getStartTime().isBefore(this.getEndTime());
     }
 
     public String getNameTask() {
@@ -73,37 +88,12 @@ public class Task {
         this.status = status;
     }
 
-    public void setEpicId(int epicId) {
-        this.epicId = epicId;
-    }
-
-    public int getEpicId() {
-        return epicId;
-    }
-
     public TaskType getTaskType() {
         return taskType;
     }
 
-    // Новый метод для получения времени завершения задачи
-    public LocalDateTime getEndTime() {
-        return startTime != null && duration != null ? startTime.plus(duration) : null;
-    }
-
-    public Duration getDuration() {
-        return duration;
-    }
-
-    public void setDuration(Duration duration) {
-        this.duration = duration;
-    }
-
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
+    public void setTaskType(TaskType taskType) {
+        this.taskType = taskType;
     }
 
     @Override
@@ -121,7 +111,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return nameTask + " (Start: " + startTime + ", Duration: " + duration + ")";
+        return nameTask;
     }
 }
 

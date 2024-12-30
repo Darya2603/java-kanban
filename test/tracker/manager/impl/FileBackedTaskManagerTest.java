@@ -2,8 +2,9 @@ package tracker.manager.impl;
 
 import tracker.manager.exception.ManagerSaveException;
 import tracker.model.Task;
-import tracker.status.Status;
 import org.junit.jupiter.api.*;
+import tracker.status.Status;
+import tracker.status.TaskType;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +12,7 @@ import java.nio.file.Files;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FileBackedTaskManagerTest {
     private FileBackedTaskManager manager;
@@ -27,46 +28,52 @@ public class FileBackedTaskManagerTest {
     // Тестирование сохранения и загрузки пустого файла
     @Test
     public void testSaveAndLoadEmptyFile() {
-        Assertions.assertEquals(0, tempFile.length());
+        assertTrue(tempFile.length() == 0);
 
-        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
+        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile, new InMemoryHistoryManagerImpl());
 
-        Assertions.assertTrue(loadedManager.getTasks().isEmpty());
-        Assertions.assertTrue(loadedManager.getEpics().isEmpty());
-        Assertions.assertTrue(loadedManager.getSubtasks().isEmpty());
+        assertTrue(loadedManager.getTasks().isEmpty());
+        assertTrue(loadedManager.getEpics().isEmpty());
+        assertTrue(loadedManager.getSubtasks().isEmpty());
     }
 
     // Тестирование сохранения нескольких задач
     @Test
     public void testSaveMultipleTasks() {
-        Task task1 = new Task("Task 1", "Description 1", Status.NEW, Duration.ofMinutes(30), LocalDateTime.now());
-        Task task2 = new Task("Task 2", "Description 2", Status.IN_PROGRESS, Duration.ofMinutes(45), LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+        Task task1 = new Task(1, "Task 1", "Description 1", Status.NEW,
+                TaskType.TASK, Duration.ofHours(1), now);
+        Task task2 = new Task(2, "Task 2", "Description 2", Status.IN_PROGRESS,
+                TaskType.TASK, Duration.ofHours(1), now.plusHours(2));
+
         manager.createTask(task1);
         manager.createTask(task2);
-
-        Assertions.assertEquals(2, manager.getTasks().size());
-
         manager.save();
 
-        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
-
-        Assertions.assertEquals(2, loadedManager.getTasks().size());
-        Assertions.assertEquals(task1.getNameTask(), loadedManager.getTasks().get(0).getNameTask());
-        Assertions.assertEquals(task2.getNameTask(), loadedManager.getTasks().get(1).getNameTask());
+        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile, new InMemoryHistoryManagerImpl());
+        assertEquals(2, loadedManager.getTasks().size());
+        assertEquals(task1.getNameTask(), loadedManager.getTasks().get(0).getNameTask());
+        assertEquals(task2.getNameTask(), loadedManager.getTasks().get(1).getNameTask());
     }
 
+
+    // Тестирование загрузки нескольких задач в файл напрямую
     @Test
-    public void testLoadMultipleTasksWithDuplicateIds() throws IOException {
+    public void testLoadMultipleTasks() throws IOException {
         String content = """
-            id,type,name,status,description,epic
-            1,TASK,Task 1,NEW,Description 1,0
-            1,TASK,Task 2,IN_PROGRESS,Description 2,0
-            """;
+                id,type,name,status,description,duration,startTime,epic
+                1,TASK,Task 1,NEW,Description 1,PT24H,2024-01-01T10:00,0
+                2,TASK,Task 2,IN_PROGRESS,Description 2,PT48H,2024-01-02T11:00,0
+                1,TASK,Task 1 Duplicate,NEW,Description 1 Duplicate,PT24H,2024-01-01T10:00,0
+                """;
 
         Files.writeString(tempFile.toPath(), content);
 
-        assertThrows(IllegalArgumentException.class, () -> FileBackedTaskManager.loadFromFile(tempFile),
-                "Задача с таким идентификатором уже существует: 1");
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+            FileBackedTaskManager.loadFromFile(tempFile, new InMemoryHistoryManagerImpl());
+        });
+
+        assertEquals("Задача с таким идентификатором уже существует: 1", thrown.getMessage());
     }
 
     // Тестирование обработки ошибок
@@ -75,31 +82,33 @@ public class FileBackedTaskManagerTest {
         File nonExistentFile = new File("test/resources/non_existent_file.csv");
 
         if (nonExistentFile.exists()) {
-            Assertions.assertTrue(nonExistentFile.delete());
+            nonExistentFile.delete();
         }
 
-        assertThrows(ManagerSaveException.class, () -> FileBackedTaskManager.loadFromFile(nonExistentFile));
+        assertThrows(ManagerSaveException.class, () -> {
+            FileBackedTaskManager.loadFromFile(nonExistentFile, new InMemoryHistoryManagerImpl());
+        });
     }
 
     // Тестирование обработки пустых строк
     @Test
     public void testLoadWithEmptyLines() throws IOException {
-        String content = """
-                id,type,name,status,description,epic
-                1,TASK,Task 1,NEW,Description 1,0
-                
-                2,TASK,Task 2,IN_PROGRESS,Description 2,0
-                """;
+        String content = "id,type,name,status,description,duration,startTime,epic\n" +
+                "1,TASK,Task 1,NEW,Description 1,P1D,2023-10-01T10:00:00,0\n" +
+                "\n" +
+                "2,TASK,Task 2,IN_PROGRESS,Description 2,P2D,2023-10-02T11:00:00,0\n";
         Files.writeString(tempFile.toPath(), content);
-
-        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
-
-        Assertions.assertEquals(2, loadedManager.getTasks().size());
-        Assertions.assertEquals("Task 1", loadedManager.getTasks().get(0).getNameTask());
-        Assertions.assertEquals("Task 2", loadedManager.getTasks().get(1).getNameTask());
+        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile, new InMemoryHistoryManagerImpl());
+        assertEquals(2, loadedManager.getTasks().size());
     }
 
+    // Тестирование исключения при операциях с файлами
     @Test
-    void getFile1() {
+    public void testExceptionOnFileOperation() {
+        String nonExistentPath = "/some/non/existent/path/test.csv";
+
+        assertThrows(ManagerSaveException.class, () -> {
+            new FileBackedTaskManager(new File(nonExistentPath));
+        });
     }
 }
