@@ -122,6 +122,7 @@ public class InMemoryTaskManagerImpl implements TaskManager {
         }
         subtasks.clear();
     }
+
     @Override
     public void removeSubtasks() {
         for (Epic epic : epics.values()) {
