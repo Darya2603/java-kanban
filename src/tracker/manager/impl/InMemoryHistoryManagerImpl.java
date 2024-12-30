@@ -3,85 +3,99 @@ package tracker.manager.impl;
 import tracker.manager.HistoryManager;
 import tracker.model.Task;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class InMemoryHistoryManagerImpl implements HistoryManager {
 
-    private final HashMap<Integer, Node> historyMap = new HashMap<>();
-    private final Node head = new Node(null);
-    private final Node tail = new Node(null);
-    private Node last = head;
-
-    public InMemoryHistoryManagerImpl() {
-        head.next = tail;
-        tail.prev = head;
-    }
+    private Node<Task> first;
+    private Node<Task> last;
+    private final Map<Integer, Node<Task>> history = new HashMap<>();
 
     @Override
     public void add(Task task) {
         if (task == null) {
             return;
         }
-
-        Integer taskId = task.getId();
-
-        if (historyMap.containsKey(taskId)) {
-            removeNode(historyMap.get(taskId));
-        }
-
-        Node newNode = new Node(task);
-        linkLast(newNode);
-        historyMap.put(taskId, newNode);
-    }
-
-    @Override
-    public List<Task> getHistory() {
-        List<Task> tasks = new ArrayList<>();
-        Node current = head.next;
-        while (current != tail) {
-            tasks.add(current.task);
-            current = current.next;
-        }
-        return tasks;
+        final int id = task.getId();
+        removeNode(history.get(id));
+        linkLast(task);
+        history.put(id, last);
     }
 
     @Override
     public void remove(int id) {
-        if (historyMap.containsKey(id)) {
-            Node nodeToRemove = historyMap.get(id);
+        Node<Task> nodeToRemove = history.remove(id);
+        if (nodeToRemove != null) {
             removeNode(nodeToRemove);
-            historyMap.remove(id);
         }
     }
 
-    private void linkLast(Node newNode) {
-        newNode.prev = last;
-        last.next = newNode;
-        newNode.next = tail;
-        tail.prev = newNode;
+    @Override
+    public List<Task> getHistory() {
+        return getTasks();
+    }
+
+    private void linkLast(Task task) {
+        Node<Task> newNode = new Node<>(task);
+        final Node<Task> oldLast = last;
+        newNode.prev = oldLast;
         last = newNode;
+
+        if (oldLast == null) {
+            first = newNode;
+        } else {
+            oldLast.next = newNode;
+        }
     }
 
-    private void removeNode(Node node) {
-        if (node == null) return;
-
-        node.prev.next = node.next;
-        node.next.prev = node.prev;
-        // Удаление из linked list завершено
+    private List<Task> getTasks() {
+        List<Task> tasks = new ArrayList<>();
+        Node<Task> currentNode = first;
+        while (currentNode != null) {
+            tasks.add(currentNode.task);
+            currentNode = currentNode.next;
+        }
+        return tasks;
     }
 
-    private static class Node {
-        Task task;
-        Node next;
-        Node prev;
+    private void removeNode(Node<Task> node) {
+        if (node != null) {
+            final Node<Task> next = node.next;
+            final Node<Task> prev = node.prev;
 
-        public Node(Task task) {
+            if (first == node && last == node) {
+                first = null;
+                last = null;
+            } else if (first == node) {
+                first = next;
+                if (first != null) {
+                    first.prev = null;
+                }
+            } else if (last == node) {
+                last = prev;
+                if (last != null) {
+                    last.next = null;
+                }
+            } else {
+                if (prev != null) {
+                    prev.next = next;
+                }
+                if (next != null) {
+                    next.prev = prev;
+                }
+            }
+        }
+    }
+
+    public static class Node<T> {
+        public T task;
+        public Node<T> prev;
+        public Node<T> next;
+
+        public Node(T task) {
             this.task = task;
+            this.next = null;
+            this.prev = null;
         }
     }
 }
-
-
-

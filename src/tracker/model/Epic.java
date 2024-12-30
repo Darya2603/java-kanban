@@ -1,43 +1,122 @@
 package tracker.model;
 
 import tracker.status.Status;
+import tracker.status.TaskType;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Epic extends Task {
-    private final List<Integer> subtaskIds = new ArrayList<>();
+    private List<Subtask> subtasks;
 
-    public Epic(String name, String description) {
-        super(name, description, Status.NEW);
+    public Epic(int id, String nameTask, String descriptionTask, Status status, Duration duration,
+                LocalDateTime startTime) {
+        super(id, nameTask, descriptionTask, status, TaskType.EPIC, duration, startTime);
+        this.subtasks = new ArrayList<>();
     }
 
-    public List<Integer> getSubtaskIds() {
-        return subtaskIds;
+    @Override
+    public Duration getDuration() {
+        return subtasks.stream()
+                .map(Subtask::getDuration)
+                .reduce(Duration.ZERO, Duration::plus);
     }
 
-    public void addSubtaskId(int subtaskId) {
-        subtaskIds.add(subtaskId);
+    @Override
+    public LocalDateTime getStartTime() {
+        return subtasks.stream()
+                .map(Subtask::getStartTime)
+                .min(LocalDateTime::compareTo)
+                .orElse(null);
+    }
+
+    @Override
+    public LocalDateTime getEndTime() {
+        return subtasks.stream()
+                .map(subtask -> subtask.getStartTime().plus(subtask.getDuration()))
+                .max(LocalDateTime::compareTo)
+                .orElse(null);
+    }
+
+    public void addSubtask(Subtask subtask) {
+        for (Subtask existingSubtask : subtasks) {
+            if (subtask.overlapsWith(existingSubtask)) {
+                throw new IllegalArgumentException("Подзадача пересекается с существующей подзадачей.");
+            }
+        }
+        subtasks.add(subtask);
+        updateStatus();
     }
 
     public void removeSubtask(int subtaskId) {
-        subtaskIds.remove(Integer.valueOf(subtaskId));
+        subtasks.removeIf(subtask -> subtask.getId() == subtaskId);
+        updateStatus();
     }
 
-    public void cleanSubtaskIds() {
-        subtaskIds.clear();
+    public void cleanSubtasks() {
+        if (subtasks != null) {
+            subtasks.clear();
+        }
+    }
+
+    private void updateStatus() {
+        if (subtasks.isEmpty()) {
+            setStatus(Status.NEW);
+            return;
+        }
+        boolean hasNew = subtasks.stream().anyMatch(subtask -> subtask.getStatus() == Status.NEW);
+        boolean hasInProgress = subtasks.stream().anyMatch(subtask -> subtask.getStatus() == Status.IN_PROGRESS);
+        boolean hasDone = subtasks.stream().allMatch(subtask -> subtask.getStatus() == Status.DONE);
+
+        if (hasNew) {
+            setStatus(Status.IN_PROGRESS);
+        } else if (hasDone) {
+            setStatus(Status.DONE);
+        } else {
+            setStatus(Status.NEW);
+        }
+    }
+
+    public Status getStatus() {
+        return super.getStatus();
+    }
+
+    public void setStatus(Status status) {
+        super.setStatus(status);
+    }
+
+    public List<Subtask> getSubtasks() {
+        return new ArrayList<>(this.subtasks);
+    }
+
+    public void setSubtasks(List<Subtask> subtasks) {
+        for (Subtask subtask : subtasks) {
+            if (subtask.getEpicId() == this.getId()) {
+                throw new IllegalArgumentException("Эпик не может добавлять себя в качестве подзадачи.");
+            }
+        }
+        this.subtasks = subtasks;
+    }
+
+    public List<Subtask> getEpicSubtasks(int epicId) {
+        return subtasks.stream()
+                .filter(subtask -> subtask.getEpicId() == epicId)
+                .collect(Collectors.toList());
     }
 
     @Override
     public String toString() {
-        return "Epic{id=" + getId() + ", name='" + getName() + "', description='" + getDescription() + "', status=" + getStatus() + '}';
-    }
-
-    @Override
-    public void setEpicId(int epicId) {
-        super.setEpicId(epicId);
+        return nameTask + ": " +
+                subtasks;
     }
 }
+
+
+
+
 
 
 
