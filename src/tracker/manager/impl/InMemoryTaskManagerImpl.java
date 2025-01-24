@@ -121,7 +121,9 @@ public class InMemoryTaskManagerImpl implements TaskManager {
             prioritizedTasks.remove(subtask);
         }
         subtasks.clear();
-    }    @Override
+    }
+
+    @Override
     public void removeSubtasks() {
         for (Epic epic : epics.values()) {
             epic.getSubtasks().clear();
@@ -266,7 +268,8 @@ public class InMemoryTaskManagerImpl implements TaskManager {
         Epic epic = getEpicById(epicId);
         if (epic == null) {
             throw new IllegalArgumentException("Эпик с ID " + epicId + " не найден.");
-        }        List<Subtask> subtasks = getEpicSubtasks(epicId);
+        }
+        List<Subtask> subtasks = getEpicSubtasks(epicId);
         boolean hasInProgress = false;
         boolean hasDone = false;
 
