@@ -1,12 +1,17 @@
 package tracker.model;
 
 import tracker.status.Status;
+import tracker.status.TaskType;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class Subtask extends Task {
-    private final int epicId;
+    private int epicId;
 
-    public Subtask(String name, String description, Status status, int epicId) {
-        super(name, description, status);
+    public Subtask(int id, String nameTask, String descriptionTask, Status status, Duration duration,
+                   LocalDateTime startTime, int epicId) {
+        super(id, nameTask, descriptionTask, status, TaskType.SUBTASK, duration, startTime);
         this.epicId = epicId;
     }
 
@@ -14,12 +19,22 @@ public class Subtask extends Task {
         return epicId;
     }
 
+    public void setEpicId(int epicId) {
+        this.epicId = epicId;
+    }
+
+    public int getId() {
+        return super.getId();
+    }
+
     @Override
     public String toString() {
-        return "Subtask{id=" + getId() + ", name='" + getName() + "', description='" + getDescription() + "', status=" + getStatus() + ", epicId=" + epicId + '}';
+        return super.toString();
     }
 
 }
+
+
 
 
 
